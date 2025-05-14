@@ -10,6 +10,28 @@ jobs:
       steps:
         - name: checkout sources
           uses: actions/checkout@v4
-
+        - name: create .env file
+          run: echo "PORT=${{ secrets.PORT }}" > .env
+        - name: login into dockerhub
+          run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        - name: build the image
+          run: docker build -t fenilpanseriya/docs:latest .
+        - name: push the image
+          run: docker push fenilpanseriya/docs:latest
+    deploy:
+      needs: build
+      runs-on: self-hosted
+      steps:
+        - name: pull the docker image
+          run: sudo docker pull fenilpanseriya/docs:latest
+        - name: stop the old container
+          run: sudo docker rm -f docs
+        - name: Create .env file
+          run: |
+            echo "PORT=${{ secrets.PORT }}" > .env
+            echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+        - name: run the new container
+          run: sudo docker run -d --name docs -p ${{ secrets.PORT }}:${{ secrets.PORT }} fenilpanseriya/docs:latest
     
     
