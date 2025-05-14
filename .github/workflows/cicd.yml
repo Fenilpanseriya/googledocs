@@ -1,0 +1,15 @@
+name: Deploy golan docs app
+on:
+  push:
+    branches:
+     - main
+jobs:
+    build:
+      name: build the image
+      runs-on: ubuntu-latest
+      steps:
+        - name: checkout sources
+          uses: actions/checkout@v4
+
+    
+    
