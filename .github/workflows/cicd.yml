@@ -32,6 +32,6 @@ jobs:
             echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
         - name: run the new container
-          run: sudo docker run -d --name docs -p ${{ secrets.PORT }}:${{ secrets.PORT }} fenilpanseriya/docs:latest
+          run: sudo docker run --env-file .env -d --name docs -p ${{ secrets.PORT }}:${{ secrets.PORT }} fenilpanseriya/docs:latest
     
     
