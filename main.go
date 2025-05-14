@@ -28,6 +28,7 @@ func main() {
 
 	db.ConnectMongoDB(mongoURI)
 
+	http.HandleFunc("/", controllers.Welcome)
 	http.HandleFunc("/signup", controllers.Signup)
 	http.HandleFunc("/signin", controllers.Signin)
 	// http.HandleFunc("/signin", Signin)
