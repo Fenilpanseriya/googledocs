@@ -51,3 +51,4 @@ jobs:
 
     - name: Start containers with docker-compose
       run: sudo docker-compose up
+      working-directory: ${{ github.workspace }}
