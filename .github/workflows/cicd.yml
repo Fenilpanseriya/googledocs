@@ -48,8 +48,11 @@ jobs:
         echo "PORT=${{ secrets.PORT }}" > .env
         echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
         echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-
+    - name: Print current directory
+      run: |
+        pwd
+        ls -al
+        
     - name: Start containers with docker-compose
-      working-directory: ../../
       run: sudo docker-compose up
       
