@@ -43,7 +43,6 @@ jobs:
 
     - name: Pull the new image
       run: sudo docker pull fenilpanseriya/docs:latest
-
     - name: Create .env file
       run: |
         echo "PORT=${{ secrets.PORT }}" > .env
@@ -51,4 +50,4 @@ jobs:
         echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
 
     - name: Start containers with docker-compose
-      run: sudo docker compose up
+      run: sudo docker-compose up
