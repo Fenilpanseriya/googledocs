@@ -53,6 +53,10 @@ jobs:
         pwd
         ls -al
         
+    - name: Show workspace structure
+      run: ls -laR
+
     - name: Start containers with docker-compose
+      working-directory: docs2.0BE
       run: sudo docker-compose up
       
