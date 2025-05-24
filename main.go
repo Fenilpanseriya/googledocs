@@ -8,6 +8,8 @@ import (
 
 	"github.com/fenilpanseriya/docs2.0/controllers"
 	"github.com/fenilpanseriya/docs2.0/db"
+	"github.com/fenilpanseriya/docs2.0/middleware"
+	"github.com/gorilla/handlers"
 	"github.com/joho/godotenv"
 )
 
@@ -28,14 +30,21 @@ func main() {
 
 	db.ConnectMongoDB(mongoURI)
 
-	http.HandleFunc("/", controllers.Welcome)
-	http.HandleFunc("/signup", controllers.Signup)
-	http.HandleFunc("/signin", controllers.Signin)
-	// http.HandleFunc("/signin", Signin)
-	// http.HandleFunc("/welcome", Welcome)
-	//http.HandleFunc("/refresh", Refresh)
-	//http.HandleFunc("/logout", Logout)
+	// Create a new ServeMux for routing
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api/v1/signup", controllers.Signup)
+	mux.HandleFunc("/api/v1/signin", controllers.Signin)
+	mux.HandleFunc("/api/v1/forgotpassword", controllers.ForgotPassword)
+	mux.HandleFunc("/api/v1/resetpassword", middleware.AuthMiddleware(controllers.ResetPassword))
+	mux.HandleFunc("/api/v1/me", middleware.AuthMiddleware(controllers.UserDetails))
+	// mux.HandleFunc("/", controllers.Welcome)
 
-	// start the server on port 8000
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	// Set CORS headers
+	headers := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
+	origins := handlers.AllowedOrigins([]string{"http://localhost:5173"})
+	credentials := handlers.AllowCredentials()
+	// Start the server with CORS support
+	fmt.Printf("Server is running on port %s...\n", port)
+	log.Fatal(http.ListenAndServe(":"+port, handlers.CORS(headers, methods, origins, credentials)(mux)))
 }

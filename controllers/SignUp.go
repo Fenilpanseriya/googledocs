@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/fenilpanseriya/docs2.0/db"
+	"github.com/fenilpanseriya/docs2.0/helpers"
 	"github.com/fenilpanseriya/docs2.0/models"
-	"github.com/golang-jwt/jwt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -35,16 +35,11 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": user.Email,
-		"exp":   time.Now().Add(time.Hour * 24 * 7).Unix(),
-	})
-	tokenString, err := token.SignedString([]byte(jwtKey))
+	tokenString, err := helpers.GenerateToken(&user, jwtKey, time.Hour*24*7)
 	fmt.Println("jwtKey", jwtKey, user.Email)
-	fmt.Println("token", token)
 	fmt.Println("tokenString", tokenString)
 	if err != nil {
-		http.Error(w, "Failed to create token", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	user.Id = primitive.NewObjectID()

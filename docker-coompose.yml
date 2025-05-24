@@ -5,9 +5,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: docs-app
     ports:
-      - "8080:8080"
+      - "${PORT}:${PORT}"  # Example: 5000:5000
     env_file:
       - .env
-    environment:
-      - MONGO_URI=${MONGO_URI}
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped

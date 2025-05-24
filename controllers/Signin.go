@@ -8,10 +8,9 @@ import (
 	"time"
 
 	"github.com/fenilpanseriya/docs2.0/db"
+	"github.com/fenilpanseriya/docs2.0/helpers"
 	"github.com/fenilpanseriya/docs2.0/models"
-	"github.com/golang-jwt/jwt"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func Signin(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +21,7 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	filter := bson.M{"email": user.Email}
+	filter := bson.M{"email": user.Email, "password": user.Password}
 	var userCollection = db.Client.Database("docs").Collection("users")
 	count, err := userCollection.CountDocuments(context.Background(), filter)
 	if err != nil {
@@ -33,16 +32,12 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": user.Email,
-		"exp":   time.Now().Add(time.Hour * 24 * 7).Unix(),
-	})
-	tokenString, err := token.SignedString([]byte(jwtKey))
+	tokenString, err := helpers.GenerateToken(&user, jwtKey, time.Hour*24*7)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	user.Id = primitive.NewObjectID()
+
 	user.Access_token = tokenString
 	user.Updated_at = time.Now()
 	user.Refresh_token = tokenString
@@ -59,6 +54,7 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to update user", http.StatusInternalServerError)
 		return
 	}
+	//fmt.Println("users", users)
 	http.SetCookie(w, &http.Cookie{
 		Name:     "auth_token",
 		Value:    tokenString,
@@ -67,7 +63,6 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 	})
 	response := map[string]string{
 		"message": "Signin successful",
-		"id":      user.Id.Hex(),
 		"email":   user.Email,
 	}
 	w.Header().Set("Content-Type", "application/json")
