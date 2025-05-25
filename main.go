@@ -37,7 +37,7 @@ func main() {
 	mux.HandleFunc("/api/v1/forgotpassword", controllers.ForgotPassword)
 	mux.HandleFunc("/api/v1/resetpassword", middleware.AuthMiddleware(controllers.ResetPassword))
 	mux.HandleFunc("/api/v1/me", middleware.AuthMiddleware(controllers.UserDetails))
-	// mux.HandleFunc("/", controllers.Welcome)
+	mux.HandleFunc("/", controllers.Welcome)
 
 	// Set CORS headers
 	headers := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
